@@ -63,10 +63,13 @@ class juman:
 				categorylist = jumantxt.split(" ")
 				keywordlist.append(categorylist[0])
 		return keywordlist
+@app.route('/')
+def hello():
+	return "Hello World"
 
 @app.route('/entry/<string:txt>')
 def index(txt):
-        txt = txt.encode(TEXT_ENCODING)
+	txt = txt.encode(TEXT_ENCODING)
         category = "動物"
         message = j.extractKeyWords(txt,category)
         return message
