@@ -14,21 +14,21 @@ class juman:
 		cJuman.init(['-B', '-e2'])
 
 	def extractKeyWords(self, txt, category):
+		self.keywordList = []
 		node = self.parse(txt)
+		print node
 		wordsList = []
-		keywordList = []
 		categoryList = []
 		wikiword = ""
 		wordsList = node.split("\n")
 		for i in range(len(wordsList)):
 			if "カテゴリ" in wordsList[i]:
-				keywordList = self.categoryParse(wordsList[i],category)
+				self.categoryParse(wordsList[i],category, 0)
 					
 			elif "Wikipedia上位語:" in wordsList[i]:
-				keywordList = self.wikiWordsParse(wordsList[i],category)
-		
-		if len(keywordList) != 0:
-			return keywordList[0]
+				self.wikiWordsParse(wordsList[i],category)
+		if len(self.keywordList) != 0:
+			return self.keywordList[0]
 		else:
 			return "0"
 
@@ -36,19 +36,20 @@ class juman:
 		node = cJuman.parse_opt([txt], cJuman.SKIP_NO_RESULT)
 		return node
 
-	def categoryParse(self, jumantxt,category):
-		keywordlist = []
+	def categoryParse(self, jumantxt, category, wikiflag):
 		categorylist = []
 		if "カテゴリ" in jumantxt:
 			categorylist = jumantxt.split("カテゴリ:")
 			categorylist = categorylist[1].split("\"")
 			if categorylist[0] == category:
 				categorylist = jumantxt.split(" ")
-				keywordlist.append(categorylist[0])
-		return keywordlist
-
+				if not category in categorylist[0]:
+					if wikiflag == 0:
+						self.keywordList.append(categorylist[0])
+					elif wikiflag == 1:
+						self.wikiList.append(categorylist[0])
 	def wikiWordsParse(self, jumantxt,category):
-		keywordlist = []
+		self.wikiList = []
 		categorylist = []
 		wikilist = []
 		wikiword = ""
@@ -58,11 +59,11 @@ class juman:
 			categoryList = categorylist[0].split("/")
 			wikiword = categorylist[0]
 			wikiword = self.parse(wikiword)
-			wikilist = self.categoryParse(wikiword,category)
-			if len(wikilist) != 0:
+			self.categoryParse(wikiword,category,1)
+			if len(self.wikiList) != 0:
 				categorylist = jumantxt.split(" ")
-				keywordlist.append(categorylist[0])
-		return keywordlist
+				if not category in categorylist[0]:
+					self.keywordList.append(categorylist[0])
 @app.route('/')
 def hello():
 	return "Hello World"
